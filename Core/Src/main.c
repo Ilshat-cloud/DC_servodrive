@@ -170,7 +170,8 @@ int main(void)
   TIM2->CCR1=0;
   TIM2->CCR2=0;
   M1.curr_direction=1;
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_ALL);
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
