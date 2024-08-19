@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "PID.h"
+#include "PID_fast.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
