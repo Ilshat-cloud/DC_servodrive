@@ -3,6 +3,12 @@
     <Tool>
         <Name>linker</Name>
         <Parent>
+            <Path>C:\Users\user\Documents\DC_servodrive\V2\EWARM\DC_servodrive_v2\Exe\DC_servodrive_v2.out</Path>
+            <Output>
+                <Path>C:\Users\user\Documents\DC_servodrive\V2\EWARM\DC_servodrive_v2\List\DC_servodrive_v2.map</Path>
+            </Output>
+        </Parent>
+        <Parent>
             <Path>C:\Users\user\Documents\servodrive\V2\EWARM\DC_servodrive_v2\Exe\DC_servodrive_v2.out</Path>
             <Output>
                 <Path>C:\Users\user\Documents\servodrive\V2\EWARM\DC_servodrive_v2\List\DC_servodrive_v2.map</Path>
