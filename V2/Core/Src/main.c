@@ -321,13 +321,17 @@ static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
   if(channel==0){
     if(motor->PWM_out>=5)
     {
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_SET);  //changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP (driver mode connected to GND) 
       TIM2->CCR1=motor->PWM_out;
       motor->curr_direction=1;
     }else if (motor->PWM_out<=-5){
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR1=motor->PWM_out*(-1);//0
       motor->curr_direction=-1;
+    }else{      //reach control point
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_SET);
     }
   }else {
     if(motor->PWM_out>=5)
