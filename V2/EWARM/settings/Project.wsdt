@@ -180,6 +180,7 @@
                 <ColumnWidth2>1144</ColumnWidth2>
                 <FilterLevel>2</FilterLevel>
                 <LiveFile />
+                <LiveFile />
                 <LiveLogEnabled>0</LiveLogEnabled>
                 <LiveFilterLevel>-1</LiveFilterLevel>
             </IarPane-34054>
@@ -201,6 +202,7 @@
                 <ColumnWidth1>95</ColumnWidth1>
                 <ColumnWidth2>1142</ColumnWidth2>
                 <FilterLevel>2</FilterLevel>
+                <LiveFile />
                 <LiveFile />
                 <LiveLogEnabled>0</LiveLogEnabled>
                 <LiveFilterLevel>-1</LiveFilterLevel>
@@ -237,6 +239,7 @@
                 <ColumnWidth1>95</ColumnWidth1>
                 <ColumnWidth2>1142</ColumnWidth2>
                 <FilterLevel>2</FilterLevel>
+                <LiveFile />
                 <LiveFile />
                 <LiveLogEnabled>0</LiveLogEnabled>
                 <LiveFilterLevel>-1</LiveFilterLevel>
@@ -276,6 +279,7 @@
             <IarPane-34060>
                 <FilterLevel>2</FilterLevel>
                 <LiveFile />
+                <LiveFile />
                 <LiveLogEnabled>0</LiveLogEnabled>
                 <LiveFilterLevel>-1</LiveFilterLevel>
             </IarPane-34060>
@@ -298,14 +302,17 @@
                 </cg_type>
                 <cg_symbol>
                     <item />
+                    <item />
                 </cg_symbol>
                 <cg_user>
+                    <item />
                     <item />
                 </cg_user>
                 <cg_display>
                     <item>&lt;Right-click on a symbol in the editor to show a call graph&gt;</item>
                 </cg_display>
                 <cg_def_file>
+                    <item />
                     <item />
                 </cg_def_file>
                 <cg_def_line>
@@ -315,6 +322,7 @@
                     <item>0</item>
                 </cg_def_col>
                 <cg_call_file>
+                    <item />
                     <item />
                 </cg_call_file>
                 <cg_call_line>
@@ -418,6 +426,7 @@
             </DockingManager-256>
             <MFCToolBar-34048>
                 <Name>CMSIS-Pack</Name>
+                <Buttons>00200000010000000100FFFF01001100434D4643546F6F6C426172427574746F6ED18400000200000008000000FFFEFF00000000000000000000000000010000000100000000000000FFFEFF0A43004D005300490053002D005000610063006B0018000000</Buttons>
                 <Buttons>00200000010000000100FFFF01001100434D4643546F6F6C426172427574746F6ED18400000200000008000000FFFEFF00000000000000000000000000010000000100000000000000FFFEFF0A43004D005300490053002D005000610063006B0018000000</Buttons>
             </MFCToolBar-34048>
             <Pane-34048>

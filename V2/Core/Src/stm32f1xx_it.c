@@ -252,7 +252,7 @@ void EXTI9_5_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-  if (tic_count==10){
+  if (tic_count==10){  //10 hz
     update_encoder(&M1,&htim1);
     update_encoder(&M2,&htim3);
     tic_count=0;
@@ -282,7 +282,7 @@ void USART1_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 void update_encoder(Motor_Sruct *motor, TIM_HandleTypeDef *htim)
 {
-  uint16_t temp_counter =__HAL_TIM_GET_COUNTER(htim);
+  uint16_t temp_counter =__HAL_TIM_GET_COUNTER(htim);  //todo check probaby first time is matter
 //static uint8_t first_time=0;
 //  if (!first_time)
 //  {
