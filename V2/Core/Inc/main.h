@@ -52,6 +52,12 @@ extern "C" {
      uint8_t D_current; 
      int16_t PWM_out;
      int8_t curr_direction; //calculate when pwm active
+     int32_t regI1;
+     int16_t Error_old1;
+     int32_t regI2;
+     int16_t Error_old2;
+     int32_t regI3;
+     int16_t Error_old3;
    }Motor_Sruct;
    
    
@@ -141,11 +147,11 @@ void Error_Handler(void);
 #define M1_PID_POS_I 0
 #define M1_PID_POS_D 0
 #define M1_PID_Vel_P 5
-#define M1_PID_Vel_I 10
+#define M1_PID_Vel_I 2
 #define M1_PID_Vel_D 0
 #define M1_PID_Cur_P 5
 #define M1_PID_Cur_I 10
-#define M1_PID_Cur_D 1
+#define M1_PID_Cur_D 0
 
 #define M2_PID_POS_P 1
 #define M2_PID_POS_I 0

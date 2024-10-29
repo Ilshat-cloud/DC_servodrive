@@ -151,7 +151,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if ((tic_prev!=tic_count)&&(tic_count==0)){  
+    if ((tic_prev!=tic_count)&&(tic_count==1)){  
       HAL_GPIO_TogglePin(Led_GPIO_Port,Led_Pin);
     }
     if (tic_prev!=tic_count){ //100hz
@@ -165,10 +165,12 @@ int main(void)
       switch (init_state){
       case 0:
         /* Debug_mode */
-        PID_REG(&M1); // 0.01 sec
-        PID_REG(&M2); // 0.01 sec
-        PWM_out_H_brige(&M1,1);
-        PWM_out_H_brige(&M2,2);
+        if (tic_count==1){
+          PID_REG(&M1); // 0.01 sec
+          PID_REG(&M2); // 0.01 sec
+          PWM_out_H_brige(&M1,1);
+          PWM_out_H_brige(&M2,2);
+        }
         break;
       case 1:
         /* Step_DIR control loop by position*/
@@ -264,8 +266,8 @@ int main(void)
         default:
           break;
       } 
-      //      HAL_ADC_Stop_DMA(&hadc1);
-      //      HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);  //todo check, changed to circular mode
+      HAL_ADC_Stop_DMA(&hadc1);
+      HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);  //todo check, changed to circular mode
     }
     /* USER CODE END WHILE */
     
