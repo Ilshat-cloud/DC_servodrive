@@ -58,6 +58,7 @@ extern "C" {
      int16_t Error_old2;
      int32_t regI3;
      int16_t Error_old3;
+     uint8_t first_time;
    }Motor_Sruct;
    
    
@@ -162,7 +163,8 @@ void Error_Handler(void);
 #define M2_PID_Cur_P 5
 #define M2_PID_Cur_I 10
 #define M2_PID_Cur_D 1
- 
+#define debug_PID_Current       //comissioning
+#define debug_PID_Velocity  //comissioning
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

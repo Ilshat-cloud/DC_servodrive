@@ -10,7 +10,7 @@ extern uint8_t init_state;
 
 void PID_REG(Motor_Sruct *Motor){
   uint8_t dead_zone1=0, dead_zone2=0,dead_zone3=0,direct_pid1=0,direct_pid2=0,direct_pid3=0; 
-  int16_t  Error1;
+  int16_t  Error1=0;
   int32_t regD1=0,regP1=0,PID1;
   int16_t  Error2;
   int32_t regD2=0,regP2=0,PID2;
@@ -18,8 +18,10 @@ void PID_REG(Motor_Sruct *Motor){
   int32_t regD3=0,regP3=0,PID3;
   int32_t temp;
   //-------------------pid1------------------------------------------//   
+#ifndef debug_PID_Current  
+#ifndef debug_PID_Velocity
   Error1=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
-  regP1=Error1*Motor->P_position;
+  regP1=Error1*Motor->P_position;               // position difference will determine rotation
   if (Motor->I_position){ 
     Motor->regI1+=(Error1*Motor->I_position)/100; //becouse time is 0.01  error*Ki*dt
   }else{
@@ -65,8 +67,9 @@ void PID_REG(Motor_Sruct *Motor){
       Motor->velocity_sp=(int16_t)temp;
     }
   }
+#endif
   //-------------------pid2------------------------------------------//   
-  Error2=Motor->velocity_sp-Motor->velocity;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
+  Error2=Motor->velocity_sp-Motor->velocity;    
   
   regP2=Error2*Motor->P_velocity;  
   
@@ -103,7 +106,7 @@ void PID_REG(Motor_Sruct *Motor){
     }
     if (PID2<=-10000)
     {
-      PID2=-10000;
+      PID2=0;  //todo check
     }
     if (PID2>=10000)
     {
@@ -112,16 +115,21 @@ void PID_REG(Motor_Sruct *Motor){
     temp=Motor->I_M_max*PID2/10000;
     Motor->I_M_sp=(int16_t)temp;
   }
-    
+#endif    
+  if (Error1<0){ //CW or CCW according to position error
+    Motor->curr_direction=-1;
+  }else{
+    Motor->curr_direction=1;
+  }
   //-------------------pid3------------------------------------------//   
-  Error3=Motor->I_M_sp-Motor->I_M*Motor->curr_direction;    //+-MAX_INT32 zadanie +-MAX_UINT16 feedback
+  Error3=Motor->I_M_sp-(Motor->I_M); 
   regP3=Error3*Motor->P_current; 
   if (Motor->I_current){
-    Motor->regI3+=(Error3*Motor->I_current)/100; //becouse time is 0.01  error*Ki*dt
+    Motor->regI3+=(Error3*Motor->I_current)/10; //becouse time is 0.1  error*Ki*dt
   }else{
     Motor->regI3 =0; 
   }
-  regD3=(Error3-Motor->Error_old3)*Motor->D_current*100; //becouse dt is 0.01
+  regD3=(Error3-Motor->Error_old3)*Motor->D_current*10; //becouse dt is 0.1
   if (regD3<(-10000))
   {
     regD3=(-10000);
@@ -148,12 +156,12 @@ void PID_REG(Motor_Sruct *Motor){
     }
     if (PID3<=-10000)
     {
-      PID3=-10000;
+      PID3=0;
     }
     if (PID3>=10000)
     {
       PID3=10000;
     }
-    Motor->PWM_out=PID3/10;  
+    Motor->PWM_out=(PID3/10)*Motor->curr_direction;  
   }
 }

@@ -166,8 +166,14 @@ int main(void)
       case 0:
         /* Debug_mode */
         if (tic_count==1){
-          PID_REG(&M1); // 0.01 sec
-          PID_REG(&M2); // 0.01 sec
+#ifdef debug_PID_Current
+          M1.curr_direction=1;
+#endif
+#ifdef debug_PID_Velocity
+          M1.curr_direction=1;
+#endif
+          PID_REG(&M1); // 0.1 sec
+          PID_REG(&M2); // 0.1 sec
           PWM_out_H_brige(&M1,1);
           PWM_out_H_brige(&M2,2);
         }
@@ -332,12 +338,10 @@ static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
       HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_SET);  //changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP (driver mode connected to GND) 
       TIM2->CCR1=motor->PWM_out;
-      motor->curr_direction=1;
     }else if (motor->PWM_out<=-5){
       HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR1=motor->PWM_out*(-1);//0
-      motor->curr_direction=-1;
     }else{      //reach control point
       TIM2->CCR1=0;
       HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_SET);
@@ -347,12 +351,10 @@ static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
     {
       HAL_GPIO_WritePin(Mot2_DIR_GPIO_Port,Mot2_DIR_Pin,GPIO_PIN_SET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR2=motor->PWM_out;
-      motor->curr_direction=1;
       HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
     }else if (motor->PWM_out<=-5){
       HAL_GPIO_WritePin(Mot2_DIR_GPIO_Port,Mot2_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR2=motor->PWM_out*(-1);//0
-      motor->curr_direction=-1;
       HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
     }else{      //reach control point
       HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_SET);
