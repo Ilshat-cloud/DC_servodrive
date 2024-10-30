@@ -283,12 +283,11 @@ void USART1_IRQHandler(void)
 void update_encoder(Motor_Sruct *motor, TIM_HandleTypeDef *htim)
 {
   uint16_t temp_counter =__HAL_TIM_GET_COUNTER(htim);  //todo check probaby first time is matter
-//static uint8_t first_time=0;
-//  if (!first_time)
-//  {
-//    motor->velocity=0;
-//    first_time=1;
-//  }else{
+  if (!motor->first_time)
+  {
+    motor->velocity=0;
+    motor->first_time=1;
+  }else{
     if (temp_counter==motor->last_counter_value)
     {
         motor->velocity=0;
@@ -308,7 +307,7 @@ void update_encoder(Motor_Sruct *motor, TIM_HandleTypeDef *htim)
         motor->velocity=temp_counter+(__HAL_TIM_GET_AUTORELOAD(htim)-motor->last_counter_value);
       }
     }
-  
+  }
   motor->position+=motor->velocity;
   motor->last_counter_value=temp_counter;
 
