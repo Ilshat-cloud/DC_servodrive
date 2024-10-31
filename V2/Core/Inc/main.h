@@ -59,7 +59,9 @@ extern "C" {
      int32_t regI3;
      int16_t Error_old3;
      uint8_t first_time;
-   }Motor_Sruct;
+     int16_t velocity_average_buf[10];
+     int16_t velocity_average;
+}Motor_Sruct;
    
    
 
@@ -165,6 +167,7 @@ void Error_Handler(void);
 #define M2_PID_Cur_D 10
 #define debug_PID_Current       //comissioning
 #define debug_PID_Velocity  //comissioning
+#define debug_PID_pos_only  //comissioning
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -165,18 +165,23 @@ int main(void)
       switch (init_state){
       case 0:
         /* Debug_mode */
+#ifndef debug_PID_pos_only
         if (tic_count==1){
+#endif
 #ifdef debug_PID_Current
           M1.curr_direction=1;
 #endif
 #ifdef debug_PID_Velocity
           M1.curr_direction=1;
 #endif
-          PID_REG(&M1); // 0.1 sec
+          //PID_REG(&M1); // 0.1 sec
+          PID_REG_V_only(&M1);//0.1sec
           PID_REG(&M2); // 0.1 sec
           PWM_out_H_brige(&M1,1);
           PWM_out_H_brige(&M2,2);
+#ifndef debug_PID_pos_only
         }
+#endif        
         break;
       case 1:
         /* Step_DIR control loop by position*/

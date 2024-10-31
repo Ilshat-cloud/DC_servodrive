@@ -252,9 +252,27 @@ void EXTI9_5_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
+  update_encoder(&M1,&htim1);
+  update_encoder(&M2,&htim3);
+  for(int i = 9; i <0; i--)
+  {
+    M1.velocity_average_buf[i]=M1.velocity_average_buf[i-1];
+    M2.velocity_average_buf[i]=M2.velocity_average_buf[i-1];
+  }
+  M2.velocity_average_buf[0]=M2.velocity;
+  
+  M2.velocity_average=0;
+  M2.velocity_average=0;
+  
+  for(int i = 0; i < 10; i++)   //one sample 0.01s so 10 samples 0.1s, so thats why we will multiple our average velosity by 10
+  {
+    M1.velocity_average+=(M1.velocity_average_buf[i]);
+    M2.velocity_average+=(M2.velocity_average_buf[i]);
+  }
+  M1.velocity_average=M1.velocity_average*10;
+  M2.velocity_average=M2.velocity_average*10;
+  
   if (tic_count==10){  //10 hz
-    update_encoder(&M1,&htim1);
-    update_encoder(&M2,&htim3);
     tic_count=0;
   }
   tic_count++;
@@ -308,7 +326,7 @@ void update_encoder(Motor_Sruct *motor, TIM_HandleTypeDef *htim)
       }
     }
   }
-  motor->position+=motor->velocity;
+  motor->position+=motor->velocity;  //100 hz
   motor->last_counter_value=temp_counter;
 
 }
