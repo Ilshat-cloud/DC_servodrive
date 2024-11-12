@@ -28,6 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "PID_fast.h"
+//#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -151,10 +152,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if ((tic_prev!=tic_count)&&(tic_count==1)){  
-      HAL_GPIO_TogglePin(Led_GPIO_Port,Led_Pin);
-    }
+    
     if (tic_prev!=tic_count){ //100hz
+      if (tic_count==1){  
+        HAL_GPIO_TogglePin(Led_GPIO_Port,Led_Pin);
+      }
       HAL_IWDG_Refresh(&hiwdg);
       tic_prev=tic_count;
       M1.I_M=(dma_I1_prev+dma[0])>>1;
@@ -175,10 +177,12 @@ int main(void)
           M1.curr_direction=1;
 #endif
           //PID_REG(&M1); // 0.1 sec
-          PID_REG_V_only(&M1);//0.1sec
+          //PID_REG_V_only(&M1);//0.1sec
+          PID_REG_position_only(&M1);
           PID_REG(&M2); // 0.1 sec
           PWM_out_H_brige(&M1,1);
           PWM_out_H_brige(&M2,2);
+          //printf("%d\r\n",M1.velocity_average);
 #ifndef debug_PID_pos_only
         }
 #endif        

@@ -22,7 +22,7 @@ void PID_REG(Motor_Sruct *Motor){
 #ifndef debug_PID_Current  
 #ifndef debug_PID_Velocity
   Error1=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
-  constrain_(Error1,10000,-10000);
+  Error1=constrain_(Error1,10000,-10000);
   regP1=Error1*Motor->P_position/10;               // position difference will determine rotation
   if (Motor->I_position){ 
     Motor->regI1+=(Error1*Motor->I_position)/100; //becouse time is 0.1  error*Ki*dt
@@ -117,7 +117,7 @@ void PID_REG_V_only(Motor_Sruct *Motor){
   //-------------------pid1------------------------------------------//   
 #ifndef debug_PID_Velocity
   Error1=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
-  constrain_(Error1,10000,-10000);
+  Error1=constrain_(Error1,10000,-10000);
   regP1=Error1*Motor->P_position/10;               // position difference will determine rotation
   if (Motor->I_position){ 
     Motor->regI1+=(Error1*Motor->I_position)/100; //becouse time is 0.1  error*Ki*dt
@@ -188,7 +188,7 @@ void PID_REG_position_only(Motor_Sruct *Motor){
   int32_t temp;
   //-------------------pid1------------------------------------------//   
   Error1=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
-  constrain_(Error1,10000,-10000);
+  Error1=constrain_(Error1,10000,-10000);
   regP1=Error1*Motor->P_position/10;               // position difference will determine rotation
   if (Motor->I_position){ 
     Motor->regI1+=(Error1*Motor->I_position)/100; //becouse time is 0.1  error*Ki*dt
@@ -207,12 +207,11 @@ void PID_REG_position_only(Motor_Sruct *Motor){
     }else{
       PID1=regP1+Motor->regI1+regD1;
     }
-    PID1=constrain_(PID1,10000,-10000);
-    
-    if (init_state!=2){
-      temp=PID1*Motor->velocity_max/10000; //0-velocity_max
-      Motor->velocity_sp=(int16_t)temp;
-    }
+
+//    if (init_state!=2){
+//      temp=PID1*Motor->velocity_max/10000; //0-velocity_max
+//      Motor->velocity_sp=(int16_t)temp;
+//    }
   }
   if (Error1<0){ //CW or CCW according to position error
     Motor->curr_direction=-1;
@@ -220,5 +219,6 @@ void PID_REG_position_only(Motor_Sruct *Motor){
     Motor->curr_direction=1;
   }
   
-  
+  PID1=constrain_(PID1,10000,-10000);
+  Motor->PWM_out=(PID1/10)*Motor->curr_direction;  
 }

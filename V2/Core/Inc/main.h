@@ -146,14 +146,14 @@ void Error_Handler(void);
 #define PWM2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define M1_PID_POS_P 10
-#define M1_PID_POS_I 0
-#define M1_PID_POS_D 0
+#define M1_PID_POS_P 20
+#define M1_PID_POS_I 4
+#define M1_PID_POS_D 5
 #define M1_PID_Vel_P 50
 #define M1_PID_Vel_I 20
 #define M1_PID_Vel_D 0
-#define M1_PID_Cur_P 50
-#define M1_PID_Cur_I 100
+#define M1_PID_Cur_P 20
+#define M1_PID_Cur_I 60
 #define M1_PID_Cur_D 0
 
 #define M2_PID_POS_P 10
@@ -165,8 +165,8 @@ void Error_Handler(void);
 #define M2_PID_Cur_P 50
 #define M2_PID_Cur_I 100
 #define M2_PID_Cur_D 10
-#define debug_PID_Current       //comissioning
-#define debug_PID_Velocity  //comissioning
+//#define debug_PID_Current       //comissioning
+//#define debug_PID_Velocity  //comissioning
 #define debug_PID_pos_only  //comissioning
 /* USER CODE END Private defines */
 
