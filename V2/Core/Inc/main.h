@@ -36,6 +36,7 @@ extern "C" {
      int64_t position;             //in encoder impulses
      uint16_t last_counter_value;
      int64_t position_sp;
+     int32_t error_sp;
      int16_t velocity_sp;
      int16_t I_M_sp;
      uint16_t I_M;
@@ -146,9 +147,9 @@ void Error_Handler(void);
 #define PWM2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define M1_PID_POS_P 20
-#define M1_PID_POS_I 4
-#define M1_PID_POS_D 5
+#define M1_PID_POS_P 50  // this one multiply directly
+#define M1_PID_POS_I 30         // this one divide by 10
+#define M1_PID_POS_D 0
 #define M1_PID_Vel_P 50
 #define M1_PID_Vel_I 20
 #define M1_PID_Vel_D 0

@@ -8,7 +8,7 @@
    void PID_REG_V_only(Motor_Sruct *Motor);
    void PID_REG_position_only(Motor_Sruct *Motor);
    
-#define constrain_(a, max, min) (a > max) ? max : ((a < min) ?min:a)  
+#define constrain_(amt,high,low) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))  
      
 #ifdef __cplusplus
 }

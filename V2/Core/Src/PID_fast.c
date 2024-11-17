@@ -182,24 +182,22 @@ void PID_REG_V_only(Motor_Sruct *Motor){
 
 
 void PID_REG_position_only(Motor_Sruct *Motor){
-  uint8_t dead_zone1=0,direct_pid1=0; 
-  int64_t  Error1=0;
-  int32_t regD1=0,regP1=0,PID1;
-  int32_t temp;
+  static uint8_t dead_zone1=3,direct_pid1=0; 
+  static int32_t regD1=0,regP1=0,PID1;
   //-------------------pid1------------------------------------------//   
-  Error1=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
-  Error1=constrain_(Error1,10000,-10000);
-  regP1=Error1*Motor->P_position/10;               // position difference will determine rotation
+  Motor->error_sp=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
+  Motor->error_sp=constrain_(Motor->error_sp,10000,-10000);
+  regP1=Motor->error_sp*Motor->P_position;               // position difference will determine rotation
   if (Motor->I_position){ 
-    Motor->regI1+=(Error1*Motor->I_position)/100; //becouse time is 0.1  error*Ki*dt
+    Motor->regI1+=(Motor->error_sp*Motor->I_position)/100; //becouse time is 0.1  error*Ki*dt
   }else{
     Motor->regI1=0;
   }
-  regD1=(Error1-Motor->Error_old1)*Motor->D_position*1; //becouse dt is 0.1
+  regD1=(Motor->error_sp-Motor->Error_old1)*Motor->D_position*1; //becouse dt is 0.1
   regD1=constrain_(regD1,10000,-10000);
   Motor->regI1=constrain_(Motor->regI1,10000,-10000);
-  Motor->Error_old1=Error1;
-  if ((Error1>=dead_zone1)||(Error1<=(dead_zone1*(-1))) )  
+  Motor->Error_old1=Motor->error_sp;
+  if ((Motor->error_sp>=dead_zone1)||(Motor->error_sp<=(dead_zone1*(-1))) )  
   {
     
     if (direct_pid1){
@@ -212,13 +210,15 @@ void PID_REG_position_only(Motor_Sruct *Motor){
 //      temp=PID1*Motor->velocity_max/10000; //0-velocity_max
 //      Motor->velocity_sp=(int16_t)temp;
 //    }
+  }else{                //TODO this is special case, rm else if you will control something in dynamic
+    PID1=0;
   }
-  if (Error1<0){ //CW or CCW according to position error
+  if (Motor->error_sp<0){ //CW or CCW according to position error
     Motor->curr_direction=-1;
   }else{
     Motor->curr_direction=1;
   }
   
   PID1=constrain_(PID1,10000,-10000);
-  Motor->PWM_out=(PID1/10)*Motor->curr_direction;  
+  Motor->PWM_out=(PID1/10);  //*(Motor->curr_direction)  //todo rm do I NEED IT!!!!???? WHY!!!
 }

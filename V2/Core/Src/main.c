@@ -67,10 +67,10 @@ volatile uint16_t dma[4];
 //volatile uint16_t PWM_M1=0; //0-1000 
 //volatile uint16_t PWM_M4=0;//1000 RPS
 //volatile uint32_t Freq_TIM2=10000;  //10000 is one rpm/sec or 600000 is one rpm/min
-uint8_t init_state=0, tic_count = 0;
+volatile uint8_t init_state=0, tic_count = 0;
 Motor_Sruct M1,M2;
-uint16_t Step1_cnt_from_EXTI=0; 
-uint16_t Step2_cnt_from_EXTI=0; 
+volatile uint16_t Step1_cnt_from_EXTI=0; 
+volatile uint16_t Step2_cnt_from_EXTI=0; 
 
 
 //========================================//
