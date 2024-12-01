@@ -21,20 +21,20 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <PlDriver>
-        <MemConfigValue>C:\Program Files\IAR Systems\Embedded Workbench 9.2\arm\config\debugger\ST\STM32F103C8.ddf</MemConfigValue>
         <FirstRun>0</FirstRun>
+        <MemConfigValue>C:\Program Files\IAR Systems\Embedded Workbench 9.2\arm\config\debugger\ST\STM32F103C8.ddf</MemConfigValue>
     </PlDriver>
     <ArmDriver>
         <EnableCache>0</EnableCache>
         <EnforceMemoryConfiguration>1</EnforceMemoryConfiguration>
     </ArmDriver>
     <StLinkDriver>
+        <stlinkserialNo>3E3E10002C135737334D4E00</stlinkserialNo>
+        <stlinkfoundProbes />
         <LeaveTargetRunning>_ 1</LeaveTargetRunning>
         <CStepIntDis>_ 0</CStepIntDis>
         <stlinkResetStyle>0</stlinkResetStyle>
         <stlinkResetStrategy>2</stlinkResetStrategy>
-        <stlinkserialNo>3E3E10002C135737334D4E00</stlinkserialNo>
-        <stlinkfoundProbes />
     </StLinkDriver>
     <StLinkDriver>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
@@ -44,8 +44,8 @@
         <Checksum>936286214</Checksum>
     </DebugChecksum>
     <Exceptions>
-        <StopOnThrow>_ 0</StopOnThrow>
         <StopOnUncaught>_ 0</StopOnUncaught>
+        <StopOnThrow>_ 0</StopOnThrow>
     </Exceptions>
     <Disassembly>
         <MixedMode>1</MixedMode>
