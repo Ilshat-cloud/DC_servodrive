@@ -167,25 +167,11 @@ int main(void)
       switch (init_state){
       case 0:
         /* Debug_mode */
-#ifndef debug_PID_pos_only
-        if (tic_count==1){
-#endif
-#ifdef debug_PID_Current
-          M1.curr_direction=1;
-#endif
-#ifdef debug_PID_Velocity
-          M1.curr_direction=1;
-#endif
-          //PID_REG(&M1); // 0.1 sec
-          //PID_REG_V_only(&M1);//0.1sec
-          PID_REG_position_only(&M1);
-          PID_REG(&M2); // 0.1 sec
+          PID_REG_V_only(&M1);
+          PID_REG_V_only(&M2); 
           PWM_out_H_brige(&M1,1);
           PWM_out_H_brige(&M2,2);
-          //printf("%d\r\n",M1.velocity_average);
-#ifndef debug_PID_pos_only
-        }
-#endif        
+      
         break;
       case 1:
         /* Step_DIR control loop by position*/
@@ -378,9 +364,9 @@ static void init_motor(Motor_Sruct *motor,uint8_t motor_num){
   motor->position=0;
   motor->position_sp=0; 
   motor->velocity=0;
-  motor->velocity_max=Encoder1_Pulses_per_rotation*Max_RPM1/600;//todo check according to motor, also use 2 different according to motor num
+  motor->velocity_max=Encoder1_Pulses_per_rotation*Max_RPM1/60;//todo check according to motor, also use 2 different according to motor num
   motor->velocity_sp=0;
-  motor->I_M_max=4096;  //todo check according to driver
+  motor->I_M_max=2000;  //todo check according to driver
   motor->I_M=0;
   motor->I_M_sp=0;
   motor->PWM_out=0;
