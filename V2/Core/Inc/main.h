@@ -152,8 +152,8 @@ void Error_Handler(void);
 #define M1_PID_POS_P 100  // this one multiply directly
 #define M1_PID_POS_I 0 // this one multiply directly        
 #define M1_PID_POS_D 0  // this one divide by 10
-#define M1_PID_Vel_P 12
-#define M1_PID_Vel_I 100
+#define M1_PID_Vel_P 30
+#define M1_PID_Vel_I 120
 #define M1_PID_Vel_D 0
 #define M1_PID_Cur_P 1
 #define M1_PID_Cur_I 1
