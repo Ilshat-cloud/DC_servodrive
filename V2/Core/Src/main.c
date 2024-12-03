@@ -117,9 +117,9 @@ int main(void)
   init_motor(&M1,1);
   init_motor(&M2,2);
   if (HAL_GPIO_ReadPin(GPIO_MODE_GPIO_Port,GPIO_MODE_Pin)){
-    init_state=0;
-  }else{
     init_state=1;
+  }else{
+    init_state=2;
   }
   HAL_GPIO_WritePin(sleep1_GPIO_Port,sleep1_Pin,GPIO_PIN_SET);  //todo we may use this for some purpouses
   HAL_GPIO_WritePin(sleep2_GPIO_Port,sleep2_Pin,GPIO_PIN_SET);
@@ -190,9 +190,10 @@ int main(void)
               Step1_cnt_from_EXTI=0;
             }
           }
-          PID_REG(&M1); // 0.01 sec        
+          PID_REG_V_only(&M1); // 0.01 sec        
         } else {
           M1.position_sp=0;
+          M1.position=M1.position_sp;
           M1.PWM_out=0;
           Step1_cnt_from_EXTI=0;
         }
@@ -214,10 +215,11 @@ int main(void)
               Step2_cnt_from_EXTI=0;
             }
           }
-          PID_REG(&M2); // 0.01 sec        
+          PID_REG_V_only(&M2); // 0.01 sec        
         } else {
           M2.position_sp=0;
           M2.PWM_out=0;
+          M2.position=0;
           Step2_cnt_from_EXTI=0;
         }
         PWM_out_H_brige(&M2,2); 
@@ -238,7 +240,7 @@ int main(void)
             dma_V1_prev=dma[1];
             M1.velocity_sp=(temp*(-1)>(M1.velocity_max))?(M1.velocity_max*(-1)):(int16_t)temp;
           }
-          PID_REG(&M1); // 0.01 sec      
+          PID_REG_V_only(&M1); // 0.01 sec      
         }else{
           M1.PWM_out=0;
         }
@@ -257,7 +259,7 @@ int main(void)
             dma_V2_prev=dma[3];
             M2.velocity_sp=(temp*(-1)>(M2.velocity_max))?(M2.velocity_max*(-1)):(int16_t)temp;
           }
-          PID_REG(&M2); // 0.01 sec      
+          PID_REG_V_only(&M2); // 0.01 sec      
         }else{
           M1.PWM_out=0;
         }
@@ -330,30 +332,35 @@ static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
   if(channel==1){
     if(motor->PWM_out>=5)
     {
-      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_SET);  //changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP (driver mode connected to GND) 
       TIM2->CCR1=motor->PWM_out;
     }else if (motor->PWM_out<=-5){
-      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR1=motor->PWM_out*(-1);//0
     }else{      //reach control point
       TIM2->CCR1=0;
+    }
+    if((motor->error_sp<RCP_deadband)&&(motor->error_sp>(RCP_deadband*(-1)))){
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
+    }else{
       HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_SET);
     }
+    
   }else {
     if(motor->PWM_out>=5)
     {
       HAL_GPIO_WritePin(Mot2_DIR_GPIO_Port,Mot2_DIR_Pin,GPIO_PIN_SET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR2=motor->PWM_out;
-      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
     }else if (motor->PWM_out<=-5){
       HAL_GPIO_WritePin(Mot2_DIR_GPIO_Port,Mot2_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR2=motor->PWM_out*(-1);//0
-      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
-    }else{      //reach control point
-      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_SET);
+    }else{     
       TIM2->CCR2=0;
+    }
+    if((motor->error_sp<RCP_deadband)&&(motor->error_sp>(RCP_deadband*(-1)))){  //reach control point
+      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
+    }else{
+      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_SET);
     }
   }
 }

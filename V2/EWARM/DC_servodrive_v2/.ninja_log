@@ -42,3 +42,15 @@
 20	706	7547623116379407	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/PID_fast.o	7390005a29bee3a9
 708	779	7547623117234046	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Exe/DC_servodrive_v2.out	26d3b9fc982d8355
 782	791	7547623117414698	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Exe/DC_servodrive_v2.hex	ee6debcfe841af83
+93	388	7549504489272560	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/dma.o	c865ab328f5c0fbc
+2	433	7549504489706170	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/adc.o	17159beb17f7b6da
+118	455	7549504489735243	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/gpio.o	82cdccb309a8f8b8
+130	516	7549504490578158	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/stm32f1xx_hal_msp.o	d2a6d959237c3449
+134	531	7549504490693942	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/iwdg.o	eac5e2affb3eefb1
+437	620	7549504491581669	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/usart.o	ca0a72ff50f43bb2
+390	646	7549504491785680	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/stm32f1xx_it.o	f4b6e7d4cb96aca2
+96	680	7549504492057681	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/main.o	403a2aea43b516f4
+138	683	7549504492057681	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/tim.o	d3e061367e6fa2e8
+124	697	7549504492366045	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Obj/Core_13247989168731456611.dir/PID_fast.o	7390005a29bee3a9
+699	938	7549504494744101	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Exe/DC_servodrive_v2.out	26d3b9fc982d8355
+940	995	7549504495477434	C:/Users/user/Documents/servodrive/V2/EWARM/DC_servodrive_v2/Exe/DC_servodrive_v2.hex	ee6debcfe841af83
