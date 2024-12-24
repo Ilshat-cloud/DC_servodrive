@@ -69,9 +69,9 @@ extern "C" {
    
 
 #define Encoder1_Pulses_per_rotation 88
-#define Max_RPM1 60
+#define Max_RPM1 80
 #define Encoder2_Pulses_per_rotation 88
-#define Max_RPM2 60   
+#define Max_RPM2 80   
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
