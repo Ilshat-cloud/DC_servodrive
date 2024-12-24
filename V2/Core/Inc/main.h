@@ -149,22 +149,22 @@ void Error_Handler(void);
 #define PWM2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define M1_PID_POS_P 100  // this one multiply directly
+#define M1_PID_POS_P 200  // this one multiply directly
 #define M1_PID_POS_I 0 // this one multiply directly        
 #define M1_PID_POS_D 0  // this one divide by 10
-#define M1_PID_Vel_P 30
-#define M1_PID_Vel_I 120
-#define M1_PID_Vel_D 0
+#define M1_PID_Vel_P 200
+#define M1_PID_Vel_I 70
+#define M1_PID_Vel_D 40
 #define M1_PID_Cur_P 1
 #define M1_PID_Cur_I 1
 #define M1_PID_Cur_D 0
 
-#define M2_PID_POS_P 100
+#define M2_PID_POS_P 200
 #define M2_PID_POS_I 0
 #define M2_PID_POS_D 0
-#define M2_PID_Vel_P 30
-#define M2_PID_Vel_I 120
-#define M2_PID_Vel_D 0
+#define M2_PID_Vel_P 200
+#define M2_PID_Vel_I 70
+#define M2_PID_Vel_D 40
 #define M2_PID_Cur_P 50
 #define M2_PID_Cur_I 100
 #define M2_PID_Cur_D 10

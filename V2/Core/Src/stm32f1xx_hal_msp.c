@@ -65,12 +65,15 @@ void HAL_MspInit(void)
 {
 
   /* USER CODE BEGIN MspInit 0 */
-
+  
   /* USER CODE END MspInit 0 */
 
   __HAL_RCC_AFIO_CLK_ENABLE();
+      RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
   __HAL_RCC_PWR_CLK_ENABLE();
-
+  AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
   /* System interrupt init*/
 
   /** NOJTAG: JTAG-DP Disabled and SW-DP Enabled
@@ -78,7 +81,9 @@ void HAL_MspInit(void)
   __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
   /* USER CODE BEGIN MspInit 1 */
-
+  RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+  AFIO->MAPR=0x7000000;
+  __HAL_AFIO_REMAP_SWJ_NOJTAG(); // JTAG-DP Disabled and SW-DP enabled 
   /* USER CODE END MspInit 1 */
 }
 

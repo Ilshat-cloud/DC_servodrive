@@ -105,6 +105,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_IWDG_Init();
@@ -124,13 +125,7 @@ int main(void)
   HAL_GPIO_WritePin(sleep1_GPIO_Port,sleep1_Pin,GPIO_PIN_SET);  //todo we may use this for some purpouses
   HAL_GPIO_WritePin(sleep2_GPIO_Port,sleep2_Pin,GPIO_PIN_SET);
   
-  //check this one if you will generate code again
-  if(init_state){
-    /* creation of Debug_mode */
-    
-  }else{
-    /* creation of Step_DIR */
-  }  
+
   HAL_ADC_Stop(&hadc1);
   HAL_ADC_Stop_DMA(&hadc1);
   HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);
@@ -147,7 +142,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   int32_t temp;
   /* USER CODE END 2 */
-  
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -273,7 +268,7 @@ int main(void)
       HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);  //todo check, changed to circular mode
     }
     /* USER CODE END WHILE */
-    
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
