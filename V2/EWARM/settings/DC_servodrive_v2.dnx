@@ -41,7 +41,7 @@
         <CStepIntDis>_ 0</CStepIntDis>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>936286214</Checksum>
+        <Checksum>1866605713</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -70,9 +70,9 @@
         <PcSampCYCTAP>1</PcSampCYCTAP>
         <PcSampPOSTCNT>15</PcSampPOSTCNT>
         <PcSampIndex>0</PcSampIndex>
-        <DataLogMode>0</DataLogMode>
-        <ITMportsEnable>1</ITMportsEnable>
-        <ITMportsTermIO>1</ITMportsTermIO>
+        <DataLogMode>1</DataLogMode>
+        <ITMportsEnable>0</ITMportsEnable>
+        <ITMportsTermIO>0</ITMportsTermIO>
         <ITMportsLogFile>0</ITMportsLogFile>
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
