@@ -36,6 +36,7 @@ extern "C" {
      int64_t position;             //in encoder impulses
      uint16_t last_counter_value;
      int64_t position_sp;
+     int32_t error_sp;
      int16_t velocity_sp;
      int16_t I_M_sp;
      uint16_t I_M;
@@ -52,14 +53,25 @@ extern "C" {
      uint8_t D_current; 
      int16_t PWM_out;
      int8_t curr_direction; //calculate when pwm active
-   }Motor_Sruct;
+     int32_t regI1;
+     int16_t Error_old1;
+     int32_t regI2;
+     int16_t Error_old2;
+     int32_t regI3;
+     int16_t Error_old3;
+     uint8_t first_time;
+     int16_t velocity_average_buf[100];
+     int16_t velocity_average;
+     int32_t errorsold2[256];
+     int32_t errorsold1[256];
+}Motor_Sruct;
    
    
 
-#define Encoder1_Pulses_per_rotation 360
-#define Max_RPM1 6000
-#define Encoder2_Pulses_per_rotation 360
-#define Max_RPM2 6000   
+#define Encoder1_Pulses_per_rotation 88
+#define Max_RPM1 60
+#define Encoder2_Pulses_per_rotation 88
+#define Max_RPM2 60   
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -137,7 +149,29 @@ void Error_Handler(void);
 #define PWM2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+#define M1_PID_POS_P 200  // this one multiply directly
+#define M1_PID_POS_I 0 // this one multiply directly        
+#define M1_PID_POS_D 0  // this one divide by 10
+#define M1_PID_Vel_P 200
+#define M1_PID_Vel_I 70
+#define M1_PID_Vel_D 40
+#define M1_PID_Cur_P 1
+#define M1_PID_Cur_I 1
+#define M1_PID_Cur_D 0
 
+#define M2_PID_POS_P 200
+#define M2_PID_POS_I 0
+#define M2_PID_POS_D 0
+#define M2_PID_Vel_P 200
+#define M2_PID_Vel_I 70
+#define M2_PID_Vel_D 40
+#define M2_PID_Cur_P 50
+#define M2_PID_Cur_I 100
+#define M2_PID_Cur_D 10
+
+#define RCP_deadband 4
+//#define debug_PID_Current       //comissioning
+//#define debug_PID_Velocity  //comissioning
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

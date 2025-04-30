@@ -2,6 +2,7 @@
 #include "main.h"
 #include "PID_fast.h"
 #include "stm32f1xx_hal.h"
+#include "stdlib.h"
 extern uint8_t init_state;
 
 
@@ -9,151 +10,238 @@ extern uint8_t init_state;
 
 
 void PID_REG(Motor_Sruct *Motor){
-  static uint8_t dead_zone1=0, dead_zone2=0,dead_zone3=0,direct_pid1=0,direct_pid2=0,direct_pid3=0; 
-  static int16_t  Error1,Error_old1=0;
-  static int32_t regD1=0,regP1=0,regI1=0,PID1;
-  static int16_t  Error2,Error_old2=0;
-  static int32_t regD2=0,regP2=0,regI2=0,PID2;
-  static int16_t  Error3,Error_old3=0;
-  static int32_t regD3=0,regP3=0,regI3=0,PID3;
+  uint8_t dead_zone1=3, dead_zone2=0,dead_zone3=1,direct_pid1=0,direct_pid2=0,direct_pid3=0; 
+  int32_t regD1=0,regP1=0,PID1;
+  int16_t  Error2;
+  int32_t regD2=0,regP2=0,PID2;
+  int16_t  Error3;
+  int32_t regD3=0,regP3=0,PID3;
   int32_t temp;
   //-------------------pid1------------------------------------------//   
-  Error1=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
-  regP1=Error1*Motor->P_position;
+#ifndef debug_PID_Current  
+#ifndef debug_PID_Velocity
+  Motor->error_sp=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
+  Motor->error_sp=constrain_(Motor->error_sp,10000,-10000);
+  regP1=Motor->error_sp*Motor->P_position;               // position difference will determine rotation
   if (Motor->I_position){ 
-    regI1+=(Error1*Motor->I_position)/100; //becouse time is 0.01  error*Ki*dt
+    Motor->regI1=Motor->regI1+(Motor->error_sp*Motor->I_position)/100; //becouse time is 0.01  error*Ki*dt
   }else{
-    regI1=0;
+    Motor->regI1=0;
   }
-  regD1=(Error1-Error_old1)*Motor->D_position*100; //becouse dt is 0.01
-  if (regD1<(-10000))
-  {
-    regD1=(-10000);
-  }
-  if (regD1>(10000))
-  {
-    regD1=(10000);
-  }
-  if (regI1<(-10000))
-  {
-    regI1=(-10000);
-  }
-  if (regI1>(10000))
-  {
-    regI1=(10000);
-  }
-  Error_old1=Error1;
-  if ((Error1>=dead_zone1)||(Error1<=(dead_zone1*(-1))) )  
+  regD1=(Motor->error_sp-Motor->Error_old1)*Motor->D_position*10; //becouse dt is 0.01 and Kd/10
+  regD1=constrain_(regD1,10000,-10000);
+  Motor->regI1=constrain_(Motor->regI1,10000,-10000);
+  Motor->Error_old1=Motor->error_sp;
+  if ((Motor->error_sp>=dead_zone1)||(Motor->error_sp<=(dead_zone1*(-1))) )  
   {
     
     if (direct_pid1){
-      PID1=(regP1+regI1+regD1)*(-1);
+      PID1=(regP1+Motor->regI1+regD1)*(-1);
     }else{
-      PID1=regP1+regI1+regD1;
+      PID1=regP1+Motor->regI1+regD1;
     }
-    if (PID1<=-10000)
-    {
-      PID1=-10000;
-    }
-    if (PID1>=10000)
-    {
-      PID1=10000;
-    }
+    PID1=constrain_(PID1,10000,-10000);
     
-    if ((init_state!=2)&&(init_state!=0)){
+    if (init_state!=2){
       temp=PID1*Motor->velocity_max/10000; //0-velocity_max
       Motor->velocity_sp=(int16_t)temp;
     }
+  }else{                //TODO this is special case, rm else if you will control something in dynamic
+    PID1=0;
   }
+#endif
   //-------------------pid2------------------------------------------//   
-  Error2=Motor->velocity_sp-Motor->velocity;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
+  Error2=Motor->velocity_sp-Motor->velocity_average;    
   
-  regP2=Error2*Motor->P_velocity;  
+  regP2=(Error2*Motor->P_velocity);  
   
   if (Motor->I_velocity){
-    regI2+=(Error2*Motor->I_velocity)/100; //becouse time is 0.01  error*Ki*dt
+    Motor->regI2+=(Error2*Motor->I_velocity)/100; //becouse time is 0.1  error*Ki*dt
   }else{
-    regI2 =0; 
+    Motor->regI2 =0; 
   }
-  regD2=(Error2-Error_old2)*Motor->D_velocity*100; //becouse dt is 0.01
-  if (regD2<(-10000))
-  {
-    regD2=(-10000);
-  }
-  if (regD2>(10000))
-  {
-    regD2=(10000);
-  }
-  if (regI2<(-10000))
-  {
-    regI2=(-10000);
-  }
-  if (regI2>(10000))
-  {
-    regI2=(10000);
-  }
-  Error_old2=Error2;
+  regD2=(Error2-Motor->Error_old2)*Motor->D_velocity*10; //becouse dt is 0.1
+  regD2=constrain_(regD2,10000,-10000);
+  Motor->regI2=constrain_(Motor->regI2,10000,-10000);
+  Motor->Error_old2=Error2;
   if ((Error2>=dead_zone2)||(Error2<=(dead_zone2*(-1))) )  
   {
     
     if (direct_pid2){
-      PID2=(regP2+regI2+regD2)*(-1);
+      PID2=(regP2+Motor->regI2+regD2)*(-1);
     }else{
-      PID2=regP2+regI2+regD2;
+      PID2=regP2+Motor->regI2+regD2;
     }
-    if (PID2<=-10000)
-    {
-      PID2=-10000;
-    }
-    if (PID2>=10000)
-    {
-      PID2=10000;
-    }
+    PID2=constrain_(PID2,10000,-10000);
     temp=Motor->I_M_max*PID2/10000;
     Motor->I_M_sp=(int16_t)temp;
   }
-    
+#endif    
+
   //-------------------pid3------------------------------------------//   
-  Error3=Motor->I_M_sp-Motor->I_M*Motor->curr_direction;    //+-MAX_INT32 zadanie +-MAX_UINT16 feedback
-  regP3=Error3*Motor->P_current; 
-  if (Motor->I_current){
-    regI3+=(Error3*Motor->I_current)/100; //becouse time is 0.01  error*Ki*dt
+  if (Error2<0){ //CW or CCW according to speed error
+    Motor->curr_direction=-1;
   }else{
-    regI3 =0; 
+    Motor->curr_direction=1;
   }
-  regD3=(Error3-Error_old3)*Motor->D_current*100; //becouse dt is 0.01
-  if (regD3<(-10000))
-  {
-    regD3=(-10000);
+  Error3=Motor->I_M_sp-(Motor->I_M)*Motor->curr_direction; 
+  regP3=(Error3*Motor->P_current);  //and Kp 0-25.6
+  if (Motor->I_current){
+    Motor->regI3+=(Error3*Motor->I_current)/100; //becouse time is 0.01  error*Ki*dt and Ki 0-25.6
+  }else{
+    Motor->regI3 =0; 
   }
-  if (regD3>(10000))
-  {
-    regD3=(10000);
-  }
-  if (regI3<(-10000))
-  {
-    regI3=(-10000);
-  }
-  if (regI3>(10000))
-  {
-    regI3=(10000);
-  }
-  Error_old3=Error3;
+  regD3=(Error3-Motor->Error_old3)*Motor->D_current*10; //becouse dt is 0.01 and Kd 0-25.6
+  regD3=constrain_(regD3,10000,-10000);
+  Motor->regI3=constrain_(Motor->regI3,10000,-10000);
+  Motor->Error_old3=Error3;
   if ((Error3>=dead_zone3)||(Error3<=(dead_zone3*(-1))) )  
   {
     if (direct_pid3){
-      PID3=(regP3+regI3+regD3)*(-1);
+      PID3=(regP3+Motor->regI3+regD3)*(-1);
     }else{
-      PID3=regP3+regI3+regD3;
+      PID3=regP3+Motor->regI3+regD3;
     }
-    if (PID3<=-10000)
-    {
-      PID3=-10000;
-    }
-    if (PID3>=10000)
-    {
-      PID3=10000;
-    }
-    Motor->PWM_out=PID3/10;  
+    PID3=constrain_(PID3,10000,-10000);
+    Motor->PWM_out=(PID3/10);  
   }
+
+}
+
+
+
+void PID_REG_V_only(Motor_Sruct *Motor){
+  uint8_t dead_zone1=3, dead_zone2=0,direct_pid1=0,direct_pid2=0; 
+  int32_t regD1=0,regP1=0,PID1;
+  int16_t  Error2;
+  int32_t regD2=0,regP2=0,PID2;
+  int32_t temp;
+  uint8_t iter;
+  //-------------------pid1------------------------------------------//   
+#ifndef debug_PID_Velocity
+  Motor->error_sp=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
+  Motor->error_sp=constrain_(Motor->error_sp,10000,-10000);
+  
+  if (Motor->I_position>0){  //KI uasble
+    Motor->regI1=0;
+    for (iter=0; iter<254; iter++)  
+    {
+      Motor->regI1+=Motor->errorsold1[iter]; 
+    } 
+    Motor->regI1+=Motor->error_sp*Motor->I_position/100; 
+  }
+  
+  regP1=Motor->error_sp*Motor->P_position;               // position difference will determine rotation
+  regD1=(Motor->error_sp-Motor->errorsold1[0])*Motor->D_position*10; //becouse dt is 0.01 and Kd/10
+  regD1=constrain_(regD1,10000,-10000);
+  Motor->regI1=constrain_(Motor->regI1,10000,-10000);
+  for (iter=255; iter>0; iter--)
+  {
+    Motor->errorsold1[iter]=Motor->errorsold1[iter-1];
+  } 
+  Motor->errorsold1[0]=Motor->error_sp;
+  if ((Motor->error_sp>=dead_zone1)||(Motor->error_sp<=(dead_zone1*(-1))) )  
+  {
+    
+    if (direct_pid1){
+      PID1=(regP1+Motor->regI1+regD1)*(-1);
+    }else{
+      PID1=regP1+Motor->regI1+regD1;
+    }
+    PID1=constrain_(PID1,10000,-10000);
+  }else{                //TODO this is special case, rm else if you will control something in dynamic
+    PID1=0;
+  }
+  
+  if (init_state!=2){
+    temp=PID1*Motor->velocity_max/10000; //0-velocity_max
+    Motor->velocity_sp=(int16_t)temp;
+  }
+#endif
+
+  //-------------------pid2------------------------------------------//   
+  Error2=Motor->velocity_sp-Motor->velocity_average;   
+  
+  if (Motor->I_velocity>0){  //KI uasble
+    Motor->regI2=0;
+    for (iter=0; iter<254; iter++)  
+    {
+      Motor->regI2+=Motor->errorsold2[iter]; 
+    } 
+    Motor->regI2+=Error2*Motor->I_velocity/100; 
+  }
+  regP2=(Error2*Motor->P_velocity);  
+  
+  regD2=(Error2-Motor->errorsold2[0])*Motor->D_velocity*10; //becouse dt is 0.01
+  regD2=constrain_(regD2,10000,-10000);
+  Motor->regI2=constrain_(Motor->regI2,10000,-10000);
+  for (iter=255; iter>0; iter--)
+  {
+    Motor->errorsold2[iter]=Motor->errorsold2[iter-1];
+  } 
+  Motor->errorsold2[0]=Error2;
+  if ((Error2>=dead_zone2)||(Error2<=(dead_zone2*(-1))) )  
+  {
+    
+    if (direct_pid2){
+      PID2=(regP2+Motor->regI2+regD2)*(-1);
+    }else{
+      PID2=regP2+Motor->regI2+regD2;
+    }
+  }
+  PID2=constrain_(PID2,10000,-10000);
+  Motor->PWM_out=(PID2/10);  
+  
+  
+  if (Motor->error_sp<0){ //CW or CCW according to position error
+    Motor->curr_direction=-1;
+  }else{
+    Motor->curr_direction=1;
+  }
+}
+
+
+
+
+
+void PID_REG_position_only(Motor_Sruct *Motor){
+  static uint8_t dead_zone1=3,direct_pid1=0; 
+  static int32_t regD1=0,regP1=0,PID1;
+  //-------------------pid1------------------------------------------//   
+  Motor->error_sp=Motor->position_sp-Motor->position;    //+-MAX_INT32 zadanie +-MAX_INT64 feedback
+  Motor->error_sp=constrain_(Motor->error_sp,10000,-10000);
+  regP1=Motor->error_sp*Motor->P_position;               // position difference will determine rotation
+  if (Motor->I_position){ 
+    Motor->regI1+=(Motor->error_sp*Motor->I_position)/100; //becouse time is 0.01  error*Ki*dt
+  }else{
+    Motor->regI1=0;
+  }
+  regD1=(Motor->error_sp-Motor->Error_old1)*Motor->D_position*10; //becouse dt is 0.01 and Kd/10
+  regD1=constrain_(regD1,10000,-10000);
+  Motor->regI1=constrain_(Motor->regI1,10000,-10000);
+  Motor->Error_old1=Motor->error_sp;
+  if ((Motor->error_sp>=dead_zone1)||(Motor->error_sp<=(dead_zone1*(-1))) )  
+  {
+    
+    if (direct_pid1){
+      PID1=(regP1+Motor->regI1+regD1)*(-1);
+    }else{
+      PID1=regP1+Motor->regI1+regD1;
+    }
+
+//    if (init_state!=2){
+//      temp=PID1*Motor->velocity_max/10000; //0-velocity_max
+//      Motor->velocity_sp=(int16_t)temp;
+//    }
+  }else{                //TODO this is special case, rm else if you will control something in dynamic
+    PID1=0;
+  }
+  if (Motor->error_sp<0){ //CW or CCW according to position error
+    Motor->curr_direction=-1;
+  }else{
+    Motor->curr_direction=1;
+  }
+  
+  PID1=constrain_(PID1,10000,-10000);
+  Motor->PWM_out=(PID1/10);  //*(Motor->curr_direction)  //todo rm do I NEED IT!!!!???? WHY!!!
 }

@@ -252,9 +252,28 @@ void EXTI9_5_IRQHandler(void)
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
-  if (tic_count==10){
-    update_encoder(&M1,&htim1);
-    update_encoder(&M2,&htim3);
+  update_encoder(&M1,&htim1);
+  update_encoder(&M2,&htim3);
+  for(int i = 99; i >0; i--)
+  {
+    M1.velocity_average_buf[i]=M1.velocity_average_buf[i-1];
+    M2.velocity_average_buf[i]=M2.velocity_average_buf[i-1];
+  }
+  M1.velocity_average_buf[0]=M1.velocity;
+  M2.velocity_average_buf[0]=M2.velocity;
+  
+  M1.velocity_average=0;
+  M2.velocity_average=0;
+  
+  for(int i = 0; i < 100; i++)   //one sample 0.01s so 100 samples 1s, so thats why we will not multiple our average velosity
+  {
+    M1.velocity_average+=(M1.velocity_average_buf[i]);
+    M2.velocity_average+=(M2.velocity_average_buf[i]);
+  }
+  M1.velocity_average=M1.velocity_average;
+  M2.velocity_average=M2.velocity_average;
+  
+  if (tic_count==10){  //10 hz
     tic_count=0;
   }
   tic_count++;
@@ -282,13 +301,12 @@ void USART1_IRQHandler(void)
 /* USER CODE BEGIN 1 */
 void update_encoder(Motor_Sruct *motor, TIM_HandleTypeDef *htim)
 {
-  uint16_t temp_counter =__HAL_TIM_GET_COUNTER(htim);
-//static uint8_t first_time=0;
-//  if (!first_time)
-//  {
-//    motor->velocity=0;
-//    first_time=1;
-//  }else{
+  uint16_t temp_counter =__HAL_TIM_GET_COUNTER(htim);  //todo check probaby first time is matter
+  if (!motor->first_time)
+  {
+    motor->velocity=0;
+    motor->first_time=1;
+  }else{
     if (temp_counter==motor->last_counter_value)
     {
         motor->velocity=0;
@@ -308,8 +326,8 @@ void update_encoder(Motor_Sruct *motor, TIM_HandleTypeDef *htim)
         motor->velocity=temp_counter+(__HAL_TIM_GET_AUTORELOAD(htim)-motor->last_counter_value);
       }
     }
-  
-  motor->position+=motor->velocity;
+  }
+  motor->position+=motor->velocity;  //100 hz
   motor->last_counter_value=temp_counter;
 
 }

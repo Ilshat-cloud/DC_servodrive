@@ -28,6 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "PID_fast.h"
+//#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,10 +67,10 @@ volatile uint16_t dma[4];
 //volatile uint16_t PWM_M1=0; //0-1000 
 //volatile uint16_t PWM_M4=0;//1000 RPS
 //volatile uint32_t Freq_TIM2=10000;  //10000 is one rpm/sec or 600000 is one rpm/min
-uint8_t init_state=0, tic_count = 0;
+volatile uint8_t init_state=0, tic_count = 0;
 Motor_Sruct M1,M2;
-uint16_t Step1_cnt_from_EXTI=0; 
-uint16_t Step2_cnt_from_EXTI=0; 
+volatile uint16_t Step1_cnt_from_EXTI=0; 
+volatile uint16_t Step2_cnt_from_EXTI=0; 
 
 
 //========================================//
@@ -104,6 +105,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_IWDG_Init();
@@ -113,24 +115,17 @@ int main(void)
   MX_TIM4_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  init_motor(&M1,0);
-  init_motor(&M2,1);
+  init_motor(&M1,1);
+  init_motor(&M2,2);
   if (HAL_GPIO_ReadPin(GPIO_MODE_GPIO_Port,GPIO_MODE_Pin)){
-    init_state=0;
-  }else{
     init_state=1;
+  }else{
+    init_state=2;
   }
   HAL_GPIO_WritePin(sleep1_GPIO_Port,sleep1_Pin,GPIO_PIN_SET);  //todo we may use this for some purpouses
   HAL_GPIO_WritePin(sleep2_GPIO_Port,sleep2_Pin,GPIO_PIN_SET);
   
-  //check this one if you will generate code again
-  if(init_state){
-    /* creation of Debug_mode */
-    
-  }else{
-    /* creation of Step_DIR */
-    MX_TIM3_Init();
-  }  
+
   HAL_ADC_Stop(&hadc1);
   HAL_ADC_Stop_DMA(&hadc1);
   HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);
@@ -147,12 +142,16 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   int32_t temp;
   /* USER CODE END 2 */
-  
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    
     if (tic_prev!=tic_count){ //100hz
+      if (tic_count==1){  
+        HAL_GPIO_TogglePin(Led_GPIO_Port,Led_Pin);
+      }
       HAL_IWDG_Refresh(&hiwdg);
       tic_prev=tic_count;
       M1.I_M=(dma_I1_prev+dma[0])>>1;
@@ -163,10 +162,11 @@ int main(void)
       switch (init_state){
       case 0:
         /* Debug_mode */
-        PID_REG(&M1); // 0.01 sec
-        PID_REG(&M2); // 0.01 sec
-        PWM_out_H_brige(&M1,0);
-        PWM_out_H_brige(&M2,1);
+          PID_REG_V_only(&M1);
+          PID_REG_V_only(&M2); 
+          PWM_out_H_brige(&M1,1);
+          PWM_out_H_brige(&M2,2);
+      
         break;
       case 1:
         /* Step_DIR control loop by position*/
@@ -185,12 +185,14 @@ int main(void)
               Step1_cnt_from_EXTI=0;
             }
           }
-          PID_REG(&M1); // 0.01 sec        
-          PWM_out_H_brige(&M1,0);
+          PID_REG_V_only(&M1); // 0.01 sec        
         } else {
-          PWM_out_H_brige(0,0);  
+          M1.position_sp=0;
+          M1.position=M1.position_sp;
+          M1.PWM_out=0;
           Step1_cnt_from_EXTI=0;
         }
+        PWM_out_H_brige(&M1,1);  
         //----------------------------------------------------------------//
         
         //------------------------------------M2--------------------------//
@@ -208,12 +210,14 @@ int main(void)
               Step2_cnt_from_EXTI=0;
             }
           }
-          PID_REG(&M2); // 0.01 sec        
-          PWM_out_H_brige(&M2,1);
+          PID_REG_V_only(&M2); // 0.01 sec        
         } else {
-          PWM_out_H_brige(0,1);  
+          M2.position_sp=0;
+          M2.PWM_out=0;
+          M2.position=0;
           Step2_cnt_from_EXTI=0;
         }
+        PWM_out_H_brige(&M2,2); 
         //----------------------------------------------------------------//
         break;
       case 2:
@@ -231,11 +235,11 @@ int main(void)
             dma_V1_prev=dma[1];
             M1.velocity_sp=(temp*(-1)>(M1.velocity_max))?(M1.velocity_max*(-1)):(int16_t)temp;
           }
-          PID_REG(&M1); // 0.01 sec      
-          PWM_out_H_brige(&M1,0);
+          PID_REG_V_only(&M1); // 0.01 sec      
         }else{
-          PWM_out_H_brige(0,0);
+          M1.PWM_out=0;
         }
+        PWM_out_H_brige(&M1,1);
         //----------------------------------------------------------------//
         //------------------------------------M2--------------------------//
         if (HAL_GPIO_ReadPin(EN2_GPIO_Port,EN2_Pin)==GPIO_PIN_SET)
@@ -250,19 +254,21 @@ int main(void)
             dma_V2_prev=dma[3];
             M2.velocity_sp=(temp*(-1)>(M2.velocity_max))?(M2.velocity_max*(-1)):(int16_t)temp;
           }
-          PID_REG(&M2); // 0.01 sec      
-          PWM_out_H_brige(&M2,1);
+          PID_REG_V_only(&M2); // 0.01 sec      
         }else{
-          PWM_out_H_brige(0,1);
+          M1.PWM_out=0;
         }
+        PWM_out_H_brige(&M2,2); 
         //----------------------------------------------------------------//
         break;
+        default:
+          break;
       } 
-      //      HAL_ADC_Stop_DMA(&hadc1);
-      //      HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);  //todo check, changed to circular mode
+      HAL_ADC_Stop_DMA(&hadc1);
+      HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);  //todo check, changed to circular mode
     }
     /* USER CODE END WHILE */
-    
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -318,27 +324,38 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
 {
-  if(channel==0){
+  if(channel==1){
     if(motor->PWM_out>=5)
     {
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_SET);  //changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP (driver mode connected to GND) 
       TIM2->CCR1=motor->PWM_out;
-      motor->curr_direction=1;
     }else if (motor->PWM_out<=-5){
       HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR1=motor->PWM_out*(-1);//0
-      motor->curr_direction=-1;
+    }else{      //reach control point
+      TIM2->CCR1=0;
     }
+    if((motor->error_sp<RCP_deadband)&&(motor->error_sp>(RCP_deadband*(-1)))){
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
+    }else{
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_SET);
+    }
+    
   }else {
     if(motor->PWM_out>=5)
     {
       HAL_GPIO_WritePin(Mot2_DIR_GPIO_Port,Mot2_DIR_Pin,GPIO_PIN_SET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
       TIM2->CCR2=motor->PWM_out;
-      motor->curr_direction=1;
     }else if (motor->PWM_out<=-5){
       HAL_GPIO_WritePin(Mot2_DIR_GPIO_Port,Mot2_DIR_Pin,GPIO_PIN_RESET);//changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP 
-      TIM2->CCR1=motor->PWM_out*(-1);//0
-      motor->curr_direction=-1;
+      TIM2->CCR2=motor->PWM_out*(-1);//0
+    }else{     
+      TIM2->CCR2=0;
+    }
+    if((motor->error_sp<RCP_deadband)&&(motor->error_sp>(RCP_deadband*(-1)))){  //reach control point
+      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
+    }else{
+      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_SET);
     }
   }
 }
@@ -349,24 +366,23 @@ static void init_motor(Motor_Sruct *motor,uint8_t motor_num){
   motor->position=0;
   motor->position_sp=0; 
   motor->velocity=0;
-  motor->velocity_max=Encoder1_Pulses_per_rotation*Max_RPM1/600;//todo check according to motor, also use 2 different according to motor num
+  motor->velocity_max=Encoder1_Pulses_per_rotation*Max_RPM1/60;//todo check according to motor, also use 2 different according to motor num
   motor->velocity_sp=0;
-  motor->I_M_max=4096;  //todo check according to driver
+  motor->I_M_max=2000;  //todo check according to driver
   motor->I_M=0;
   motor->I_M_sp=0;
   motor->PWM_out=0;
   motor->last_counter_value=0;
-  motor->D_position=0;
-  motor->I_position=0;
-  motor->P_position=0;
-  motor->D_velocity=1;
-  motor->I_velocity=10;
-  motor->P_velocity=5;
-  motor->D_current=1;
-  motor->I_current=10;
-  motor->P_current=5;  
+  motor->D_position=(motor_num==1)?M1_PID_POS_D:M2_PID_POS_D;
+  motor->I_position=(motor_num==1)?M1_PID_POS_I:M2_PID_POS_I;
+  motor->P_position=(motor_num==1)?M1_PID_POS_P:M2_PID_POS_P;
+  motor->D_velocity=(motor_num==1)?M1_PID_Vel_D:M2_PID_Vel_D;
+  motor->I_velocity=(motor_num==1)?M1_PID_Vel_I:M2_PID_Vel_I;
+  motor->P_velocity=(motor_num==1)?M1_PID_Vel_P:M2_PID_Vel_P;
+  motor->D_current =(motor_num==1)?M1_PID_Cur_D:M2_PID_Cur_D;
+  motor->I_current =(motor_num==1)?M1_PID_Cur_I:M2_PID_Cur_I;
+  motor->P_current =(motor_num==1)?M1_PID_Cur_P:M2_PID_Cur_P;
 }
-
 /* USER CODE END 4 */
 
 /**
