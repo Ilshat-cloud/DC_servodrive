@@ -335,10 +335,10 @@ static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
     }else{      //reach control point
       TIM2->CCR1=0;
     }
-    if((motor->error_sp<RCP_deadband)&&(motor->error_sp>(RCP_deadband*(-1)))){
-      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
-    }else{
-      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_SET);
+    if (abs(motor->error_sp) <= RCP_deadband) { 
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port, GPIO_OUT1_Pin, GPIO_PIN_RESET);
+    } else {
+      HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port, GPIO_OUT1_Pin, GPIO_PIN_SET);
     }
     
   }else {
@@ -352,10 +352,10 @@ static void PWM_out_H_brige(Motor_Sruct *motor, uint8_t channel)
     }else{     
       TIM2->CCR2=0;
     }
-    if((motor->error_sp<RCP_deadband)&&(motor->error_sp>(RCP_deadband*(-1)))){  //reach control point
-      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_RESET);
-    }else{
-      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port,GPIO_OUT2_Pin,GPIO_PIN_SET);
+    if (abs(motor->error_sp) <= RCP_deadband) {  // ?????????? ??????
+      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port, GPIO_OUT2_Pin, GPIO_PIN_RESET);
+    } else {
+      HAL_GPIO_WritePin(GPIO_OUT2_GPIO_Port, GPIO_OUT2_Pin, GPIO_PIN_SET);
     }
   }
 }
