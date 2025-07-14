@@ -116,11 +116,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   init_motor(&M1,1);
   init_motor(&M2,2);
-  if (HAL_GPIO_ReadPin(GPIO_MODE_GPIO_Port,GPIO_MODE_Pin)){
-    init_state=0;
-  }else{
-    init_state=1;
-  }
+//  if (HAL_GPIO_ReadPin(GPIO_MODE_GPIO_Port,GPIO_MODE_Pin)){
+//    init_state=0;
+//  }else{
+//    init_state=1;
+//  }
+  init_state=3;
   HAL_GPIO_WritePin(sleep1_GPIO_Port,sleep1_Pin,GPIO_PIN_SET);  //todo we may use this for some purpouses
   HAL_GPIO_WritePin(sleep2_GPIO_Port,sleep2_Pin,GPIO_PIN_SET);
   
@@ -278,9 +279,17 @@ int main(void)
         PWM_out_H_brige(&M2,2); 
         //----------------------------------------------------------------//
         break;
-        default:
-          break;
+      case 3:
+        HAL_GPIO_WritePin(GPIO_OUT1_GPIO_Port,GPIO_OUT1_Pin,GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(Mot1_DIR_GPIO_Port,Mot1_DIR_Pin,GPIO_PIN_SET);  //changeing direction of motor (dir 0 or 1) and PWM 0 equal STOP (driver mode connected to GND) 
+        TIM2->ARR=1000+dma[1]/4;
+        TIM2->CCR1=TIM2->ARR/2;
+        TIM2->CCR2=TIM2->ARR/2;
+        break;
+      default:
+        break;
       } 
+      
       HAL_ADC_Stop_DMA(&hadc1);
       HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&dma,4);  //todo check, changed to circular mode
     }
