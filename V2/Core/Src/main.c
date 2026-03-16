@@ -285,6 +285,19 @@ int main(void)
         TIM2->ARR=1000+dma[1]/4;
         TIM2->CCR1=TIM2->ARR/2;
         TIM2->CCR2=TIM2->ARR/2;
+        static uint8_t loop=0;
+        if(loop>4){
+            HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+            HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+            HAL_GPIO_WritePin(sleep1_GPIO_Port,sleep1_Pin,GPIO_PIN_SET);
+        }
+        if(loop>9){
+            HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_1);
+            HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_2);    
+            HAL_GPIO_WritePin(sleep1_GPIO_Port,sleep1_Pin,GPIO_PIN_RESET);
+            loop=0;
+        }
+        loop++;
         break;
       default:
         break;
